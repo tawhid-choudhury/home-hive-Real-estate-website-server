@@ -15,6 +15,9 @@ app.use(
   })
 );
 
+// HomeHive
+// Il1LGGqlm76OFtfM
+
 app.use(express.json());
 app.use(cookieParser());
 
@@ -24,3 +27,25 @@ app.get("/", (req, res) => {
 app.listen(port, () => {
   console.log(`http://localhost:${port}/`);
 });
+
+const uri = `${process.env.MDB_URI}`;
+
+// Create a MongoClient with a MongoClientOptions object to set the Stable API version
+const client = new MongoClient(uri, {
+  serverApi: {
+    version: ServerApiVersion.v1,
+    strict: true,
+    deprecationErrors: true,
+  },
+});
+
+async function run() {
+  try {
+    console.log(
+      "Pinged your deployment. You successfully connected to MongoDB!"
+    );
+  } catch (err) {
+    console.log(err);
+  }
+}
+run().catch(console.dir);
