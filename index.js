@@ -10,7 +10,7 @@ const port = process.env.PORT || 5000;
 
 app.use(
   cors({
-    origin: ["http://localhost:5173"],
+    origin: ["http://localhost:5173", "https://homehive-84c83.web.app"],
     credentials: true,
   })
 );
@@ -57,6 +57,7 @@ async function run() {
           sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
         })
         .send({ success: true });
+      return;
     });
 
     app.post("/logout", async (req, res) => {
