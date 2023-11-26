@@ -42,6 +42,29 @@ const client = new MongoClient(uri, {
 
 async function run() {
   try {
+    app.post("/jwt", async (req, res) => {
+      const user = req.body;
+      console.log(req.body);
+
+      const token = jwt.sign(user, process.env.ACCESS_TOKEN_SEC, {
+        expiresIn: "1h",
+      });
+
+      res
+        .cookie("token", token, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === "production",
+          sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
+        })
+        .send({ success: true });
+    });
+
+    app.post("/logout", async (req, res) => {
+      const user = req.body;
+      console.log("Logged Out___________", user);
+      res.clearCookie("token", { maxAge: 0 }).send({ success: true });
+    });
+
     const database = client.db("homeHiveDB");
     const usersCollection = database.collection("usersCollection");
     console.log(
