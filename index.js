@@ -67,6 +67,8 @@ async function run() {
 
     const database = client.db("homeHiveDB");
     const usersCollection = database.collection("usersCollection");
+    const propertiesCollection = database.collection("propertiesCollection");
+
     console.log(
       "Pinged your deployment. You successfully connected to MongoDB!"
     );
@@ -88,6 +90,17 @@ async function run() {
         options
       );
       return res.send(result);
+    });
+
+    app.get("/allProperties", async (req, res) => {
+      let query = {};
+      if (req.query?.verificationStatus) {
+        query = { verificationStatus: req.query.verificationStatus };
+      }
+
+      const cursor = propertiesCollection.find(query);
+      const result = await cursor.toArray();
+      res.send(result);
     });
   } catch (err) {
     console.log(err);
