@@ -97,6 +97,9 @@ async function run() {
       if (req.query?.verificationStatus) {
         query = { verificationStatus: req.query.verificationStatus };
       }
+      if (req.query?.featured) {
+        query = { featured: req.query.featured };
+      }
 
       const cursor = propertiesCollection.find(query);
       const result = await cursor.toArray();
