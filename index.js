@@ -22,7 +22,7 @@ app.use(express.json());
 app.use(cookieParser());
 
 app.get("/", (req, res) => {
-  res.send("HOMEHIVE Server Running");
+  return res.send("HOMEHIVE Server Running");
 });
 app.listen(port, () => {
   console.log(`http://localhost:${port}/`);
@@ -62,16 +62,25 @@ async function run() {
     app.post("/logout", async (req, res) => {
       const user = req.body;
       console.log("Logged Out___________", user);
-      res.clearCookie("token", { maxAge: 0 }).send({ success: true });
+      return res.clearCookie("token", { maxAge: 0 }).send({ success: true });
     });
 
     const database = client.db("homeHiveDB");
     const usersCollection = database.collection("usersCollection");
     const propertiesCollection = database.collection("propertiesCollection");
+    const reviewCollection = database.collection("reviewCollection");
 
     console.log(
       "Pinged your deployment. You successfully connected to MongoDB!"
     );
+
+    app.post("/addreview", async (req, res) => {
+      console.log(req.body);
+      const review = req.body;
+      review.timestamp = Date.now();
+      const result = await reviewCollection.insertOne(review);
+      return res.send(result);
+    });
 
     app.put("/users/:email", async (req, res) => {
       const email = req.params.email;
