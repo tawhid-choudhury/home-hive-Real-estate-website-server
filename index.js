@@ -92,6 +92,13 @@ async function run() {
       return res.send(result);
     });
 
+    app.get("/propertydetails/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await propertiesCollection.findOne(query);
+      res.send(result);
+    });
+
     app.get("/allProperties", async (req, res) => {
       let query = {};
       if (req.query?.verificationStatus) {
