@@ -50,14 +50,13 @@ async function run() {
         expiresIn: "1h",
       });
 
-      res
+      return res
         .cookie("token", token, {
           httpOnly: true,
           secure: process.env.NODE_ENV === "production",
           sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
         })
         .send({ success: true });
-      return;
     });
 
     app.post("/logout", async (req, res) => {
@@ -78,7 +77,9 @@ async function run() {
       const query = { email: email };
       const options = { upsert: true };
       const exists = await usersCollection.findOne(query);
-      if (exists) res.send(exists);
+      if (exists) {
+        return res.send(exists);
+      }
       const result = await usersCollection.updateOne(
         query,
         {
@@ -86,7 +87,7 @@ async function run() {
         },
         options
       );
-      res.send(result);
+      return res.send(result);
     });
   } catch (err) {
     console.log(err);
