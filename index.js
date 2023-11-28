@@ -119,7 +119,23 @@ async function run() {
 
       const cursor = propertiesCollection.find(query);
       const result = await cursor.toArray();
-      res.send(result);
+      return res.send(result);
+    });
+
+    app.get("/allreviews", async (req, res) => {
+      let query = {};
+      if (req.query?.propertyId) {
+        query = { propertyId: req.query.propertyId };
+      }
+      const cursor = reviewCollection.find(query);
+      const result = await cursor.toArray();
+      return res.send(result);
+    });
+
+    app.get("/homepageReviews", async (req, res) => {
+      const cursor = reviewCollection.find().sort({ timestamp: -1 });
+      const result = await cursor.limit(5).toArray();
+      return res.send(result);
     });
   } catch (err) {
     console.log(err);
