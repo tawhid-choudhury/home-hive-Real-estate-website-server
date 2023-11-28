@@ -69,6 +69,7 @@ async function run() {
     const usersCollection = database.collection("usersCollection");
     const propertiesCollection = database.collection("propertiesCollection");
     const reviewCollection = database.collection("reviewCollection");
+    const wishlistCollection = database.collection("wishlistCollection");
 
     console.log(
       "Pinged your deployment. You successfully connected to MongoDB!"
@@ -79,6 +80,14 @@ async function run() {
       const review = req.body;
       review.timestamp = Date.now();
       const result = await reviewCollection.insertOne(review);
+      return res.send(result);
+    });
+
+    app.post("/wishlist", async (req, res) => {
+      console.log(req.body);
+      const item = req.body;
+      item.timestamp = Date.now();
+      const result = await wishlistCollection.insertOne(item);
       return res.send(result);
     });
 
@@ -134,7 +143,19 @@ async function run() {
       if (req.query?.propertyId) {
         query = { propertyId: req.query.propertyId };
       }
+      if (req.query?.email) {
+        query = { reviewerEmail: req.query.email };
+      }
       const cursor = reviewCollection.find(query);
+      const result = await cursor.toArray();
+      return res.send(result);
+    });
+    app.get("/wishlist", async (req, res) => {
+      let query = {};
+      if (req.query?.email) {
+        query = { buyerEmail: req.query.email };
+      }
+      const cursor = wishlistCollection.find(query);
       const result = await cursor.toArray();
       return res.send(result);
     });
@@ -143,6 +164,13 @@ async function run() {
       const cursor = reviewCollection.find().sort({ timestamp: -1 });
       const result = await cursor.limit(8).toArray();
       return res.send(result);
+    });
+
+    app.delete("/allreviews/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await reviewCollection.deleteOne(query);
+      res.send(result);
     });
   } catch (err) {
     console.log(err);
