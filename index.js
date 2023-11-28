@@ -101,11 +101,18 @@ async function run() {
       return res.send(result);
     });
 
+    app.get("/getuser/:email", async (req, res) => {
+      const email = req.params.email;
+      const query = { email: email };
+      const result = await usersCollection.findOne(query);
+      return res.send(result);
+    });
+
     app.get("/propertydetails/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
       const result = await propertiesCollection.findOne(query);
-      res.send(result);
+      return res.send(result);
     });
 
     app.get("/allProperties", async (req, res) => {
@@ -134,7 +141,7 @@ async function run() {
 
     app.get("/homepageReviews", async (req, res) => {
       const cursor = reviewCollection.find().sort({ timestamp: -1 });
-      const result = await cursor.limit(5).toArray();
+      const result = await cursor.limit(8).toArray();
       return res.send(result);
     });
   } catch (err) {
