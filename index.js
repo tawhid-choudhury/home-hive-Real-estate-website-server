@@ -70,6 +70,7 @@ async function run() {
     const propertiesCollection = database.collection("propertiesCollection");
     const reviewCollection = database.collection("reviewCollection");
     const wishlistCollection = database.collection("wishlistCollection");
+    const boughtCollection = database.collection("boughtCollection");
 
     console.log(
       "Pinged your deployment. You successfully connected to MongoDB!"
@@ -88,6 +89,14 @@ async function run() {
       const item = req.body;
       item.timestamp = Date.now();
       const result = await wishlistCollection.insertOne(item);
+      return res.send(result);
+    });
+
+    app.post("/bought", async (req, res) => {
+      console.log(req.body);
+      const item = req.body;
+      item.timestamp = Date.now();
+      const result = await boughtCollection.insertOne(item);
       return res.send(result);
     });
 
