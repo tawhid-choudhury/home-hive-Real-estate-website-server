@@ -114,6 +114,14 @@ async function run() {
       return res.send(result);
     });
 
+    app.post("/allProperties", async (req, res) => {
+      console.log(req.body);
+      const item = req.body;
+      item.timestamp = Date.now();
+      const result = await propertiesCollection.insertOne(item);
+      return res.send(result);
+    });
+
     app.patch("/bought/:id", async (req, res) => {
       const id = req.params.id;
       const filter = { _id: new ObjectId(id) };
