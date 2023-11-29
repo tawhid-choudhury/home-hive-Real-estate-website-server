@@ -180,6 +180,9 @@ async function run() {
       if (req.query?.featured) {
         query = { featured: req.query.featured };
       }
+      if (req.query?.agentEmail) {
+        query = { agentEmail: req.query.agentEmail };
+      }
 
       const cursor = propertiesCollection.find(query);
       const result = await cursor.toArray();
