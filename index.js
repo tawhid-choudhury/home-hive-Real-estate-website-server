@@ -3,6 +3,7 @@ const express = require("express");
 const cors = require("cors");
 const jwt = require("jsonwebtoken");
 const cookieParser = require("cookie-parser");
+const stripe = require("stripe")(process.env.STRIPE_SK);
 
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const app = express();
@@ -14,9 +15,6 @@ app.use(
     credentials: true,
   })
 );
-
-// HomeHive
-// Il1LGGqlm76OFtfM
 
 app.use(express.json());
 app.use(cookieParser());
@@ -76,6 +74,22 @@ async function run() {
       "Pinged your deployment. You successfully connected to MongoDB!"
     );
 
+    app.post("/create-payment-intent", async (req, res) => {
+      const { price } = req.body;
+      const amount = parseInt(price * 100);
+
+      // Create a PaymentIntent with the order amount and currency
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount: amount,
+        currency: "usd",
+        payment_method_types: ["card"],
+      });
+
+      res.send({
+        clientSecret: paymentIntent.client_secret,
+      });
+    });
+
     app.post("/addreview", async (req, res) => {
       console.log(req.body);
       const review = req.body;
@@ -98,6 +112,23 @@ async function run() {
       item.timestamp = Date.now();
       const result = await boughtCollection.insertOne(item);
       return res.send(result);
+    });
+
+    app.patch("/bought/:id", async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) };
+      const options = { upsert: false };
+      const updateditem = req.body;
+      console.log(updateditem);
+      const item = {
+        $set: {
+          transactionId: updateditem.transactionId,
+          status: updateditem.status,
+          PaymentTimestamp: Date.now(),
+        },
+      };
+      const result = await boughtCollection.updateOne(filter, item, options);
+      res.send(result);
     });
 
     app.put("/users/:email", async (req, res) => {
@@ -169,6 +200,23 @@ async function run() {
       return res.send(result);
     });
 
+    app.get("/bought", async (req, res) => {
+      let query = {};
+      if (req.query?.email) {
+        query = { buyerEmail: req.query.email };
+      }
+      const cursor = boughtCollection.find(query);
+      const result = await cursor.toArray();
+      return res.send(result);
+    });
+
+    app.get("/payment/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await boughtCollection.findOne(query);
+      return res.send(result);
+    });
+
     app.get("/homepageReviews", async (req, res) => {
       const cursor = reviewCollection.find().sort({ timestamp: -1 });
       const result = await cursor.limit(8).toArray();
@@ -179,14 +227,14 @@ async function run() {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
       const result = await reviewCollection.deleteOne(query);
-      res.send(result);
+      return res.send(result);
     });
 
     app.delete("/wishlist/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
       const result = await wishlistCollection.deleteOne(query);
-      res.send(result);
+      return res.send(result);
     });
   } catch (err) {
     console.log(err);
