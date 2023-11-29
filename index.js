@@ -139,6 +139,31 @@ async function run() {
       res.send(result);
     });
 
+    app.patch("/updateProperty/:id", async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) };
+      const options = { upsert: false };
+      const updatedProperty = req.body;
+      console.log(updatedProperty);
+      const property = {
+        $set: {
+          propertyImage: updatedProperty.propertyImage,
+          propertyTitle: updatedProperty.propertyTitle,
+          propertyLocation: updatedProperty.propertyLocation,
+          priceRange: updatedProperty.priceRange,
+          priceMin: updatedProperty.priceMin,
+          priceMax: updatedProperty.priceMax,
+          description: updatedProperty.description,
+        },
+      };
+      const result = await propertiesCollection.updateOne(
+        filter,
+        property,
+        options
+      );
+      return res.send(result);
+    });
+
     app.put("/users/:email", async (req, res) => {
       const email = req.params.email;
       const user = req.body;
@@ -238,6 +263,13 @@ async function run() {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
       const result = await reviewCollection.deleteOne(query);
+      return res.send(result);
+    });
+
+    app.delete("/allproperty/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await propertiesCollection.deleteOne(query);
       return res.send(result);
     });
 
