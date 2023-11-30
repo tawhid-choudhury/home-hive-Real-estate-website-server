@@ -11,7 +11,11 @@ const port = process.env.PORT || 5000;
 
 app.use(
   cors({
-    origin: ["http://localhost:5173", "https://homehive-84c83.web.app"],
+    origin: [
+      "http://localhost:5173",
+      "https://homehive-84c83.web.app",
+      "https://homehive-84c83.firebaseapp.com",
+    ],
     credentials: true,
   })
 );
@@ -148,6 +152,25 @@ async function run() {
       const item = {
         $set: {
           verificationStatus: updateditem.verificationStatus,
+        },
+      };
+      const result = await propertiesCollection.updateOne(
+        filter,
+        item,
+        options
+      );
+      res.send(result);
+    });
+
+    app.patch("/editAds/:id", async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) };
+      const options = { upsert: false };
+      const updateditem = req.body;
+      console.log(updateditem);
+      const item = {
+        $set: {
+          featured: updateditem.featured,
         },
       };
       const result = await propertiesCollection.updateOne(
@@ -334,7 +357,15 @@ async function run() {
       return res.send(result);
     });
 
-    app.get("/allUsers");
+    app.get("/agents", async (req, res) => {
+      let query = {};
+      if (req.query?.role) {
+        query = { role: req.query.role };
+      }
+      const cursor = usersCollection.find(query);
+      const result = await cursor.toArray();
+      return res.send(result);
+    });
 
     app.get("/getuser/:email", async (req, res) => {
       const email = req.params.email;
@@ -381,8 +412,10 @@ async function run() {
       if (req.query?.email) {
         query = { reviewerEmail: req.query.email };
       }
+
       const cursor = reviewCollection.find(query);
       const result = await cursor.toArray();
+      console.log(result);
       return res.send(result);
     });
 
