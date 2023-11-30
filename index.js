@@ -138,6 +138,43 @@ async function run() {
       const result = await boughtCollection.updateOne(filter, item, options);
       res.send(result);
     });
+    app.patch("/verifyProperty/:id", async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) };
+      const options = { upsert: false };
+      const updateditem = req.body;
+      console.log(updateditem);
+      const item = {
+        $set: {
+          verificationStatus: updateditem.verificationStatus,
+        },
+      };
+      const result = await propertiesCollection.updateOne(
+        filter,
+        item,
+        options
+      );
+      res.send(result);
+    });
+
+    app.patch("/rejectProperty/:id", async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) };
+      const options = { upsert: false };
+      const updateditem = req.body;
+      console.log(updateditem);
+      const item = {
+        $set: {
+          verificationStatus: updateditem.verificationStatus,
+        },
+      };
+      const result = await propertiesCollection.updateOne(
+        filter,
+        item,
+        options
+      );
+      res.send(result);
+    });
 
     app.patch("/rejectOffer/:id", async (req, res) => {
       const id = req.params.id;
