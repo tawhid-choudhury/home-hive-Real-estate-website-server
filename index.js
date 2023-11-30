@@ -283,6 +283,7 @@ async function run() {
       const result = await cursor.toArray();
       return res.send(result);
     });
+
     app.get("/wishlist", async (req, res) => {
       let query = {};
       if (req.query?.email) {
@@ -298,9 +299,13 @@ async function run() {
       if (req.query?.email) {
         query = { buyerEmail: req.query.email };
       }
-      if (req.query?.agentEmail) {
+
+      if (req.query?.agentEmail && req.query?.status) {
+        query = { agentEmail: req.query.agentEmail, status: req.query.status };
+      } else if (req.query?.agentEmail) {
         query = { agentEmail: req.query.agentEmail };
       }
+
       const cursor = boughtCollection.find(query);
       const result = await cursor.toArray();
       return res.send(result);
