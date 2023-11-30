@@ -139,6 +139,63 @@ async function run() {
       res.send(result);
     });
 
+    app.patch("/rejectOffer/:id", async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) };
+      const options = { upsert: false };
+      const updateditem = req.body;
+      console.log(updateditem);
+      const item = {
+        $set: {
+          status: updateditem.status,
+          RejectTimestamp: Date.now(),
+        },
+      };
+      const result = await boughtCollection.updateOne(filter, item, options);
+      res.send(result);
+    });
+
+    app.patch("/acceptOffer/:id", async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) };
+      const options = { upsert: false };
+      const updateditem = req.body;
+      console.log(updateditem);
+      const item = {
+        $set: {
+          status: updateditem.status,
+          AcceptTimestamp: Date.now(),
+        },
+      };
+      const resultAccept = await boughtCollection.updateOne(
+        filter,
+        item,
+        options
+      );
+
+      const propertyId = req.body.propertyId;
+      const rejectFilter = {
+        _id: { $ne: new ObjectId(id) },
+        propertyId: propertyId,
+        status: "pending",
+      };
+      const rejectedItem = {
+        $set: {
+          status: "rejected",
+          RejectTimestamp: Date.now(),
+        },
+      };
+      const resultReject = await boughtCollection.updateMany(
+        rejectFilter,
+        rejectedItem
+      );
+
+      res.send({
+        accepted: resultAccept.modifiedCount,
+        rejected: resultReject.modifiedCount,
+      });
+    });
+
     app.patch("/updateProperty/:id", async (req, res) => {
       const id = req.params.id;
       const filter = { _id: new ObjectId(id) };
@@ -240,6 +297,9 @@ async function run() {
       let query = {};
       if (req.query?.email) {
         query = { buyerEmail: req.query.email };
+      }
+      if (req.query?.agentEmail) {
+        query = { agentEmail: req.query.agentEmail };
       }
       const cursor = boughtCollection.find(query);
       const result = await cursor.toArray();
