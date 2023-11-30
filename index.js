@@ -138,6 +138,7 @@ async function run() {
       const result = await boughtCollection.updateOne(filter, item, options);
       res.send(result);
     });
+
     app.patch("/verifyProperty/:id", async (req, res) => {
       const id = req.params.id;
       const filter = { _id: new ObjectId(id) };
@@ -174,6 +175,62 @@ async function run() {
         options
       );
       res.send(result);
+    });
+
+    app.patch("/makeAdmin/:id", async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) };
+      const options = { upsert: false };
+      const updateditem = req.body;
+      console.log(updateditem);
+      const item = {
+        $set: {
+          role: updateditem.role,
+        },
+      };
+      const result = await usersCollection.updateOne(filter, item, options);
+      res.send(result);
+    });
+
+    app.patch("/makeAgent/:id", async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) };
+      const options = { upsert: false };
+      const updateditem = req.body;
+      console.log(updateditem);
+      const item = {
+        $set: {
+          role: updateditem.role,
+        },
+      };
+      const result = await usersCollection.updateOne(filter, item, options);
+      res.send(result);
+    });
+
+    app.patch("/markFraud/:id", async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) };
+      const options = { upsert: false };
+      const updateditem = req.body;
+      console.log(updateditem);
+      const item = {
+        $set: {
+          role: updateditem.role,
+        },
+      };
+      const resultFraud = await usersCollection.updateOne(
+        filter,
+        item,
+        options
+      );
+
+      const agentEmail = req.body.email;
+      const deleteFilter = {
+        agentEmail: agentEmail,
+      };
+      const resultDelete = await propertiesCollection.deleteMany(deleteFilter);
+
+      res.send({ resultFraud, resultDelete });
     });
 
     app.patch("/rejectOffer/:id", async (req, res) => {
@@ -277,6 +334,8 @@ async function run() {
       return res.send(result);
     });
 
+    app.get("/allUsers");
+
     app.get("/getuser/:email", async (req, res) => {
       const email = req.params.email;
       const query = { email: email };
@@ -289,6 +348,12 @@ async function run() {
       const query = { _id: new ObjectId(id) };
       const result = await propertiesCollection.findOne(query);
       return res.send(result);
+    });
+
+    app.get("/allUsers", async (req, res) => {
+      const cursor = usersCollection.find();
+      const result = await cursor.toArray();
+      res.send(result);
     });
 
     app.get("/allProperties", async (req, res) => {
