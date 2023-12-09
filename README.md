@@ -21,7 +21,7 @@ Follow these steps to set up and run the HomeHive backend locally:
 1. Clone the repository: `git clone https://github.com/tawhid-choudhury/home-hive-Real-estate-website-server.git`
 2. Navigate to the project directory: `cd home-hive-Real-estate-website-server`
 3. Install dependencies: `npm install`
-4. Run the server locally: `npm start`
+4. Run the server locally: `nodemon index.js`
 
 
 ## Contributing:
